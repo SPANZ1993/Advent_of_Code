@@ -147,4 +147,6 @@ dependencies:
   - zipp=3.11.0=py39haa95532_0
   - zlib=1.2.13=h8cc25b3_0
   - zstd=1.5.5=hd43e919_0
+  - pip:
+    - z3-solver==4.12.4.0
 prefix: C:\Users\riggi\anaconda3\envs\Advent_Of_Code
