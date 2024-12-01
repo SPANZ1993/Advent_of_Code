@@ -1,9 +1,7 @@
 import Control.Monad
 import Data.Char
 import Data.List
-import Data.Sequence (unzipWith)
 import System.IO
-import Text.Read.Lex (Number)
 
 readInts :: [String] -> [Int]
 readInts [] = []
