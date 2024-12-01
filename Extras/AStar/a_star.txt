@@ -1,0 +1,246 @@
+# Citation:
+# This is a solution that I created for Day 17 of the 2023 Advent of Code Competition (adventofcode.com)
+# Other solutions can be found at https://github.com/SPANZ1993/Advent_Of_Code
+
+# We are seeking to find a path through a maze which minimizes total cost with certain movement restrictions applied
+# Each space in the maze is represented by a cost number. That cost is accrued by entering that space during traversal of the maze.
+# The path must adhere to these stipulations:
+#    The path can only move straight consecutively (i.e. not turning) at most three spaces consecutively before turning left or right
+#    The path cannot reverse direction. It can either go straight, left, or right after entering a space
+
+# We achieve the solution by utilizing a modified version of the A* algorithm
+
+
+import numpy as np
+import heapq
+from enum import Enum
+
+class Directions(Enum):
+    UP = 1
+    DOWN = 2
+    LEFT = 3
+    RIGHT = 4
+
+
+def format_input(inp):
+    '''
+    Turn the input maze string into a 2D numpy array
+    '''
+    return np.asarray([[int(c) for c in l] for l in inp.strip().split('\n')])
+
+
+
+
+def manhattan_distance(p1, p2):
+  '''
+  We use Manhattan Distance from the current location
+  to the target as our A* search heuristic
+
+  This simulates a situation where all nodes on a 
+  direct path between the current and target nodes
+  have an edge cost of 1
+  '''
+  return np.sum(np.abs(np.array(p1)-np.array(p2)))
+
+
+
+class A_Star_Node:
+  '''
+   A Node which will be utilized for the A* path-finding algorithm
+   If different restrictions were placed on the path then we could override the methods in this class
+  '''
+    
+  def __init__(self, loc, direction, num_direction, g, prev, start_loc, end_loc):
+    self.loc = loc
+    self.direction = direction
+    self.num_direction = num_direction
+    self.g = g
+    self.h = manhattan_distance(loc, end_loc)
+    self.f = self.g + self.h
+    self.prev = prev
+    self.start_loc = start_loc
+    self.end_loc = end_loc
+
+  def get_descriptor(self):
+    return (self.loc, self.direction, self.num_direction)
+
+
+  def direction_to_next(self, direction=None):
+    if direction is None:
+      direction = self.direction
+    dloc = {Directions.UP: [-1,0],
+            Directions.DOWN: [1,0],
+            Directions.LEFT: [0,-1],
+            Directions.RIGHT: [0,1]}[direction]
+    return tuple(np.add(dloc, list(self.loc)))
+
+  def get_possible_next_descriptors(self):
+    '''
+    Return the possible next states according to
+    the crucible's movement specifications
+
+    We break the unique A* state nodes up by:
+    (location, direction, number moved in the direction)
+
+    i.e. Arriving at node (2,2) after going right 2 times is a
+    DIFFERENT state than arriving at node (2,2) afterg going right 3 times
+
+    We structure our search of the state space accordingly
+    '''
+      
+    # If we are at the end location, then return no new locations
+    if self.loc == self.end_loc:
+      return []
+
+    # If we are at the start location, then return all surrounding locations
+    possible_nexts = []
+    if self.direction in (Directions.UP, Directions.DOWN) or self.loc == self.start_loc:
+      possible_nexts += [(self.direction_to_next(Directions.LEFT), Directions.LEFT, 1),
+                      (self.direction_to_next(Directions.RIGHT), Directions.RIGHT, 1)]
+    if self.direction in (Directions.LEFT, Directions.RIGHT) or self.loc == self.start_loc:
+      possible_nexts += [(self.direction_to_next(Directions.UP), Directions.UP, 1),
+                      (self.direction_to_next(Directions.DOWN), Directions.DOWN, 1)]
+
+    if self.loc!=self.start_loc and self.num_direction < 3:
+      possible_nexts.append((self.direction_to_next(), self.direction, self.num_direction+1))
+
+    # If one of the nexts is the end then convert it to the end
+    return [n if n[0]!=self.end_loc else (n[0], None, None) for n in possible_nexts]
+
+  def __eq__(self, other):
+    if isinstance(other, tuple):
+      return self.get_descriptor() == other
+    if isinstance(other, A_Star_Node):
+      return self.get_descriptor() == other.get_descriptor()
+    return None
+
+  def __hash__(self):
+    return hash(self.get_descriptor())
+
+
+def a_star(start, end, arr, A_Star_Node=A_Star_Node):
+  '''
+  A* Implementation with a priority queue for the queue nodes
+
+  Also implemented hash tables for fast lookups in queue, and searched lists
+  '''
+
+  class Heap_Node_Wrapper:
+    '''
+    Wraps around a heap node so the priority
+    queue can order them by their F and H values
+    '''
+    def __init__(self, node):
+      self.node = node
+
+    def __lt__(self, other):
+      n = self.node
+      other = other.node
+      return (n.f, n.h) < (other.f, other.h)
+
+    def __eq__(self, other):
+      n = self.node
+      other = other.node
+      return (n.f, n.h) == (other.f, other.h)
+
+  def in_arr(loc):
+    h, w = arr.shape
+    return ((0 <= loc[0] and loc[0] < h)
+            and (0 <= loc[1] and loc[1] < w))
+
+  s_node = A_Star_Node(start, None, None, arr[start], None, start, end)
+  q = [Heap_Node_Wrapper(s_node)]
+  qhash = {s_node:s_node} # Mirrors q, just so we can do O(1) existence checks
+  searched = {}
+
+  cnt = 0
+  while len(q) != 0:
+
+    cur = heapq.heappop(q).node
+    del qhash[cur]
+    searched[cur]=True
+
+    for n in [x for x in cur.get_possible_next_descriptors() if x not in searched and in_arr(x[0])]:
+        
+      # n is just a descriptor so if we see a node in the queue matching that
+      # descriptor then we can get a reference to it
+      n_node = None
+      if n in qhash:
+        n_node = qhash[n]
+
+      ng = cur.g + arr[n[0]]
+
+      if n_node is None or ng < n_node.g:
+        if n_node is None:
+          # If we don't have this node in the queue create it
+          n_node = A_Star_Node(n[0], n[1], n[2], ng, cur, start, end)
+          heapq.heappush(q, Heap_Node_Wrapper(n_node))
+          qhash[n_node] = n_node
+        else:
+          n_node.g = ng
+          n_node.prev = cur
+    cnt+=1
+
+  # Once we make it to the end node trace back through
+  # the path to the beginning
+  endns = [s for s in searched if s.loc==end]
+  assert(len(endns)==1)
+  endn = endns[0]
+  path = [endn.get_descriptor()]
+  at_beginning = False
+  while not at_beginning:
+    if endn.prev is not None:
+      path.append(endn.prev.get_descriptor())
+    endn = endn.prev
+    if endn.prev is None:
+      at_beginning = True
+
+  return list(reversed(path))
+
+
+
+def get_cost(maze, path):
+  '''
+  Given a path return, the cost
+  of that path
+  '''
+  c = 0
+  for p in path[1:]:
+    c += maze[p[0]]
+  return c
+
+def print_path(maze, path):
+  cost = get_cost(maze, path)
+  maze = maze.astype(str)
+  d2c = {Directions.UP: '^',
+         Directions.LEFT: '<',
+         Directions.RIGHT: '>',
+         Directions.DOWN: 'v'}
+  for p in path:
+    maze[p[0]] = d2c.get(p[1], '.')
+  s = '\n'.join([''.join(l) for l in maze])
+  print(s)
+  print(f"(Path took {len(path)-1} Steps with a Total Cost of {cost})")
+
+
+input_maze = """
+2413432311323
+3215453535623
+3255245654254
+3446585845452
+4546657867536
+1438598798454
+4457876987766
+3637877979653
+4654967986887
+4564679986453
+1224686865563
+2546548887735
+4322674655533
+             """
+
+
+
+maze = format_input(input_maze)
+path = a_star((0,0), tuple(np.array((maze.shape))-np.array([1,1])), maze, A_Star_Node=A_Star_Node)
+print_path(maze, path)

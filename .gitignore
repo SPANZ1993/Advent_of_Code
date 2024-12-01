@@ -1,3 +1,7 @@
 Input/
 **/*.ipynb_checkpoints/
 **/*.idea/
+*.exe
+*.hi
+*.o
+*.json
