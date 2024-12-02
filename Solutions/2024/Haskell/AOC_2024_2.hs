@@ -8,8 +8,8 @@ isSorted :: (Ord a) => [a] -> Bool
 isSorted x = x == sort x
 
 diffsBetween :: (Ord a, Num a) => [a] -> a -> a -> Bool
-diffsBetween [] n1 n2 = True
-diffsBetween [x] n1 n2 = True
+diffsBetween [] _ _ = True
+diffsBetween [x] _ _ = True
 diffsBetween (x1 : x2 : xs) n1 n2 = d >= n1 && d <= n2 && diffsBetween (x2 : xs) n1 n2
   where
     d = abs $ x1 - x2
