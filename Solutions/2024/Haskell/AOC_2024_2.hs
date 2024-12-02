@@ -5,7 +5,6 @@ readInts [] = []
 readInts x = map read x
 
 isSorted :: (Ord a) => [a] -> Bool
-isSorted [] = True
 isSorted x = x == sort x
 
 diffsBetween :: (Ord a, Num a) => [a] -> a -> a -> Bool
