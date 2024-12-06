@@ -20,6 +20,7 @@ filterSafe n1 n2 x = (isSorted (reverse x) || isSorted x) && diffsBetween x n1 n
 removeAt :: [a] -> Int -> [a]
 removeAt xs n = [xs !! i | i <- filter (/= n) [0 .. length xs - 1]]
 
+main :: IO ()
 main = do
   -- Prepping Data
   contents_ <- readFile "../../../Input/2024/2.txt"
