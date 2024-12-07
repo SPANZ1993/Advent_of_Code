@@ -1,5 +1,5 @@
 import Control.Monad (replicateM)
-import Data.List.Split (split, splitOn)
+import Data.List.Split (splitOn)
 import System.TimeIt (timeIt)
 
 inputToList :: String -> [(Int, [Int])]
