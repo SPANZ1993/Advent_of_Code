@@ -26,9 +26,7 @@ dirsToCheck q =
     perms2
       [ replicate (length q) 0,
         [0 .. length q - 1],
-        -- reverse [0 .. length q - 1],
         map (* (-1)) [0 .. length q - 1]
-        -- reverse $ map (* (-1)) [0 .. length q - 1]
       ]
 
 checkWord' :: (Int, Int) -> [(Int, Int)] -> Map.Map (Int, Int) Char -> String -> Bool
@@ -43,8 +41,6 @@ checkWord' loc offsets doc query = and $ zipWith (==) foundChars $ map Just quer
               offsets
       ]
 
--- checkWord :: Map.Map (Int, Int) Char -> String -> [[Bool]]
--- checkWord :: Map.Map (Int, Int) Int -> [Char] -> [[[Bool]]]
 checkWord :: String -> Map.Map (Int, Int) Char -> Int
 checkWord query doc =
   sum $

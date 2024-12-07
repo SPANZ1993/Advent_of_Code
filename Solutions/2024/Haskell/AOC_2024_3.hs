@@ -1,5 +1,6 @@
 import Data.Char (isDigit)
 import Data.List.Split (splitOn)
+import System.TimeIt (timeIt)
 import Text.Regex.TDFA (AllTextMatches (getAllTextMatches), (=~), (=~~))
 
 readInts :: [String] -> [Int]
@@ -19,12 +20,17 @@ main = do
   let contents = [c | c <- contents_, c /= '\n']
 
   -- Part 1
-  let mulstrs = getAllTextMatches $ contents =~ mulre :: [String]
-  let sumInstructs1 = sum $ map (product . extractNumsMulStr) mulstrs
-  putStrLn $ "Part 1: " ++ show sumInstructs1
-
+  timeIt
+    ( do
+        let mulstrs = getAllTextMatches $ contents =~ mulre :: [String]
+        let sumInstructs1 = sum $ map (product . extractNumsMulStr) mulstrs
+        putStrLn $ "Part 1: " ++ show sumInstructs1
+    )
   -- Part 2
-  let filteredInstructions = concatMap (head . splitOn "don't()") $ splitOn "do()" contents
-  let mulstrs = getAllTextMatches $ filteredInstructions =~ mulre :: [String]
-  let sumInstructs2 = sum $ map (product . extractNumsMulStr) mulstrs
-  putStrLn $ "Part 2: " ++ show sumInstructs2
+  timeIt
+    ( do
+        let filteredInstructions = concatMap (head . splitOn "don't()") $ splitOn "do()" contents
+        let mulstrs = getAllTextMatches $ filteredInstructions =~ mulre :: [String]
+        let sumInstructs2 = sum $ map (product . extractNumsMulStr) mulstrs
+        putStrLn $ "Part 2: " ++ show sumInstructs2
+    )

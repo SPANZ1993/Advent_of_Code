@@ -1,4 +1,5 @@
 import Data.List (sort)
+import System.TimeIt (timeIt)
 
 readInts :: [String] -> [Int]
 readInts [] = []
@@ -28,17 +29,22 @@ main = do
   let reports = map readInts contents
 
   -- Part 1
-  let nsafe1 =
-        length $
-          filter (filterSafe 1 3) reports
-  putStrLn $ "Part 1: " ++ show nsafe1
-
+  timeIt
+    ( do
+        let nsafe1 =
+              length $
+                filter (filterSafe 1 3) reports
+        putStrLn $ "Part 1: " ++ show nsafe1
+    )
   -- Part 2
-  let nsafe2 =
-        length $
-          filter
-            ( \x ->
-                or [filterSafe 1 3 (removeAt x i) | i <- [0 .. length x]]
-            )
-            reports
-  putStrLn $ "Part 2: " ++ show nsafe2
+  timeIt
+    ( do
+        let nsafe2 =
+              length $
+                filter
+                  ( \x ->
+                      or [filterSafe 1 3 (removeAt x i) | i <- [0 .. length x]]
+                  )
+                  reports
+        putStrLn $ "Part 2: " ++ show nsafe2
+    )

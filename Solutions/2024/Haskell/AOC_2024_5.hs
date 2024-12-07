@@ -1,6 +1,7 @@
 import Data.List
 import Data.List.Split (splitOn)
 import Data.Map qualified as Map
+import System.TimeIt (timeIt)
 
 perms2 :: [a] -> [(a, a)]
 perms2 [] = []
@@ -48,12 +49,18 @@ main = do
   let updateLists = [map read e | e <- map (splitOn ",") updateStrs] :: [[Int]]
 
   -- Part 1
-  let mask = checkUpdate ruleTuples updateLists
-  let pageNumSum1 = filteredMiddleSum mask updateLists
-  putStrLn $ "Part 1: " ++ show pageNumSum1
-
+  timeIt
+    ( do
+        let mask = checkUpdate ruleTuples updateLists
+        let pageNumSum1 = filteredMiddleSum mask updateLists
+        putStrLn $ "Part 1: " ++ show pageNumSum1
+    )
   -- Part 2
-  let updateListsBad = getIncorrectUpdates mask updateLists
-  let fixedUpdateList = fixOrder ruleTuples updateListsBad
-  let pageNumSum2 = filteredMiddleSum (replicate (length fixedUpdateList) True) fixedUpdateList
-  putStrLn $ "Part 2: " ++ show pageNumSum2
+  timeIt
+    ( do
+        let mask = checkUpdate ruleTuples updateLists
+        let updateListsBad = getIncorrectUpdates mask updateLists
+        let fixedUpdateList = fixOrder ruleTuples updateListsBad
+        let pageNumSum2 = filteredMiddleSum (replicate (length fixedUpdateList) True) fixedUpdateList
+        putStrLn $ "Part 2: " ++ show pageNumSum2
+    )
