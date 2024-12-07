@@ -30,11 +30,13 @@ main :: IO ()
 main = do
   contents_ <- readFile "../../../Input/2024/7.txt"
   let contents = inputToList contents_
+  -- Part 1
   timeIt
     ( do
         let calibrationRes1 = sum . map fst $ filter (checkEquation [sumTup, mulTup]) contents
         putStrLn $ "Part 1: " ++ show calibrationRes1
     )
+  -- Part 2
   timeIt
     ( do
         let calibrationRes2 = sum . map fst $ filter (checkEquation [sumTup, mulTup, concatTup]) contents
