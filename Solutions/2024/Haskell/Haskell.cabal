@@ -73,7 +73,8 @@ executable Haskell
                       regex-tdfa,
                       split,
                       containers,
-                      timeit
+                      timeit,
+                      Unique
 
     -- Directories containing source files.
     hs-source-dirs:   app

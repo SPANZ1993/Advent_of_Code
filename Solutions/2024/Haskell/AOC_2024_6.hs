@@ -48,10 +48,6 @@ countLoops m loc d pairs = length $ filter (== 'F') $ map (\c -> head $ Map.elem
   where
     candidates = [Map.insert pair '#' m | pair <- pairs]
 
--- maxi = maximum $ map fst $ Map.keys m
--- maxj = maximum $ map snd $ Map.keys m
--- pairs = [(i, j) | i <- [0 .. maxi], j <- [0 .. maxj]]
-
 map2str :: Map.Map (Int, Int) Char -> [Char]
 map2str m = unlines $ [[fromJust (Map.lookup (i, j) m) | j <- [0 .. maxj]] | i <- [0 .. maxi]]
   where
