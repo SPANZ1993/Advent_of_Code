@@ -2,17 +2,20 @@ import Data.HashSet qualified as Set
 import Data.List (nub)
 import Data.List.Split (splitOn)
 import Data.Map qualified as Map
-import Data.Maybe (fromJust, fromMaybe, isNothing)
+import Data.Maybe (isNothing)
 import System.TimeIt (timeIt)
 
 inputToMap :: String -> Map.Map (Int, Int) Int
-inputToMap inp = m
+inputToMap inp =
+  Map.fromList $
+    concat $
+      [ zip
+          (zip (replicate (length s) ln) [0 .. length s])
+          (map (\c -> read [c]) s)
+        | (s, ln) <- zip splitNewline [0 .. length splitNewline - 1]
+      ]
   where
     splitNewline = splitOn "\n" inp
-    m =
-      Map.fromList $
-        concat $
-          [zip (zip (replicate (length s) ln) [0 .. length s]) (map (\c -> read [c]) s) | (s, ln) <- zip splitNewline [0 .. length splitNewline - 1]]
 
 data Direction = U | D | L | R deriving (Eq)
 
