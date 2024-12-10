@@ -44,10 +44,12 @@ main = do
   -- Part 1
   timeIt
     ( do
-        print $ length . unique $ concatMap (getAntinodesFrequency boundi boundj False . snd) contents
+        let antinodeLocs1 = length . unique $ concatMap (getAntinodesFrequency boundi boundj False . snd) contents
+        putStrLn $ "Part 1: " ++ show antinodeLocs1
     )
   -- Part 2
   timeIt
     ( do
-        print $ length . unique $ concatMap (getAntinodesFrequency boundi boundj True . snd) contents
+        let antinodeLocs2 = length . unique $ concatMap (getAntinodesFrequency boundi boundj True . snd) contents
+        putStrLn $ "Part 2: " ++ show antinodeLocs2
     )
