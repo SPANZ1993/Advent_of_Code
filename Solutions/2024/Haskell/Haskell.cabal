@@ -75,7 +75,8 @@ executable Haskell
                       containers,
                       timeit,
                       Unique,
-                      unordered-containers
+                      unordered-containers,
+                      universum
 
     -- Directories containing source files.
     hs-source-dirs:   app
